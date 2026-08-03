@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 1463165324466252675}
   - component: {fileID: 4524141745021995351}
   - component: {fileID: 3423966863626829676}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: NetworkCube
   m_TagString: NetworkCubeTag
   m_Icon: {fileID: 0}
