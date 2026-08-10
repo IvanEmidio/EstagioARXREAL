@@ -7,9 +7,13 @@ using UnityEngine;
 
 public class NetworkPipelineManager : SimulationBehaviour, INetworkRunnerCallbacks
 {
-    [Header("Configurações da Pipeline")]
+    [Header("Posição do Cubo Central")]
     [SerializeField] private NetworkPrefabRef cubePrefab;
-    [SerializeField] private Vector3 spawnPosition = new Vector3(0, 0, 1f);
+    [SerializeField] private Vector3 spawnPosition = new Vector3(0f, 1.5f, 4f); // Cubo à altura dos olhos e à frente
+
+    [Header("Posições dos Jogadores")]
+    [SerializeField] private Vector3 player1Position = new Vector3(-1.5f, 1.5f, 0f); // Ligeiramente à esquerda
+    [SerializeField] private Vector3 player2Position = new Vector3(1.5f, 1.5f, 0f);  // Ligeiramente à direita
 
     private async void Start()
     {
@@ -18,7 +22,6 @@ public class NetworkPipelineManager : SimulationBehaviour, INetworkRunnerCallbac
 
     private async Task InitNetworkPipeline()
     {
-        // Usa o runner do próprio GameObject ou adiciona um novo
         var runner = gameObject.GetComponent<NetworkRunner>();
         if (runner == null)
         {
@@ -32,12 +35,13 @@ public class NetworkPipelineManager : SimulationBehaviour, INetworkRunnerCallbac
         {
             GameMode = GameMode.Shared,
             SessionName = "SalaAR_Testes",
-            PlayerCount = 4
+            PlayerCount = 2
         });
 
         if (result.Ok)
         {
             Debug.Log("Pipeline de Rede: Conectado com sucesso à sala!");
+            SetupLocalCameraPosition(runner);
         }
         else
         {
@@ -45,21 +49,38 @@ public class NetworkPipelineManager : SimulationBehaviour, INetworkRunnerCallbac
         }
     }
 
-    // --- EVENTO PRINCIPAL ---
+    private void SetupLocalCameraPosition(NetworkRunner runner)
+    {
+        if (Camera.main == null) return;
+
+        // 1. Posições fixas para os jogadores
+        Vector3 targetPos = runner.IsSharedModeMasterClient ? player1Position : player2Position;
+        Camera.main.transform.position = targetPos;
+
+        // CORREÇÃO: Apontar exatamente para a variável spawnPosition (e não para Vector3.zero)
+        Camera.main.transform.LookAt(spawnPosition);
+
+        // 3. Resetar o script da câmara para não haver erros
+        var camController = Camera.main.GetComponent<ARTestCameraController>();
+        if (camController != null) camController.ResetAngles();
+    }
+
     public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
     {
+        // O Master Client cria o cubo exatamente na spawnPosition definida no topo do script
         if (runner.IsSharedModeMasterClient)
         {
             if (GameObject.FindWithTag("NetworkCubeTag") == null)
             {
+                // CORREÇÃO: Usar a variável spawnPosition em vez de criar um novo Vector3 fixo
                 NetworkObject spawnedCube = runner.Spawn(cubePrefab, spawnPosition, Quaternion.identity);
                 spawnedCube.gameObject.tag = "NetworkCubeTag";
-                Debug.Log("Pipeline de Rede: Cubo criado e sincronizado!");
+                Debug.Log("Pipeline de Rede: Cubo criado perfeitamente em frente!");
             }
         }
     }
 
-    // --- CALLBACKS OBRIGATÓRIOS VAZIOS ---
+    // --- CALLBACKS VAZIOS ---
     public void OnReliableDataReceived(NetworkRunner runner, PlayerRef player, ReliableKey key, ReadOnlySpan<byte> data) { }
     public void OnConnectRequest(NetworkRunner runner, NetworkRunnerCallbackArgs.ConnectRequest request, byte[] token) { }
     public void OnHostMigration(NetworkRunner runner, HostMigrationToken hostMigrationToken) { }
