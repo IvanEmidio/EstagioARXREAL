@@ -57,7 +57,7 @@ public class NetworkPipelineManager : SimulationBehaviour, INetworkRunnerCallbac
         Vector3 targetPos = runner.IsSharedModeMasterClient ? player1Position : player2Position;
         Camera.main.transform.position = targetPos;
 
-        // CORREÇÃO: Apontar exatamente para a variável spawnPosition (e não para Vector3.zero)
+        // 2. Apontar exatamente para a variável spawnPosition (e não para Vector3.zero)
         Camera.main.transform.LookAt(spawnPosition);
 
         // 3. Resetar o script da câmara para não haver erros
@@ -72,7 +72,7 @@ public class NetworkPipelineManager : SimulationBehaviour, INetworkRunnerCallbac
         {
             if (GameObject.FindWithTag("NetworkCubeTag") == null)
             {
-                // CORREÇÃO: Usar a variável spawnPosition em vez de criar um novo Vector3 fixo
+                // Usar a variável spawnPosition em vez de criar um novo Vector3 fixo
                 NetworkObject spawnedCube = runner.Spawn(cubePrefab, spawnPosition, Quaternion.identity);
                 spawnedCube.gameObject.tag = "NetworkCubeTag";
                 Debug.Log("Pipeline de Rede: Cubo criado perfeitamente em frente!");
