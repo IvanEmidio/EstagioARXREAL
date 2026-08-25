@@ -1,27 +1,34 @@
+using Fusion;
 using UnityEngine;
 
-public class Shooter : MonoBehaviour
+public class Shooter : MonoBehaviour // Mantém-se como MonoBehaviour se estiver na câmara
 {
     [Header("Configurações do Disparo")]
-    [SerializeField] private GameObject objectToShoot;
+    [SerializeField] private NetworkPrefabRef objectToShoot; // Alterado para NetworkPrefabRef do Fusion
     [SerializeField] private float fireInterval = 0.15f;
-    [SerializeField] private Transform firePoint; // Ponto de saída da arma
-    [SerializeField] private Camera mainCamera; // Câmara do jogador (onde está a mira)
-    [SerializeField] private LayerMask shootableLayers = ~0; // Para ignorar o próprio player se necessário
+    [SerializeField] private Transform firePoint;
+    [SerializeField] private Camera mainCamera;
+    [SerializeField] private LayerMask shootableLayers = ~0;
 
     private float timer;
+    private NetworkRunner _runner;
 
     void Start()
     {
-        // Se não atribuíres no Inspector, apanha a câmara principal automaticamente
-        if (mainCamera == null)
-        {
-            mainCamera = Camera.main;
-        }
+        if (mainCamera == null) mainCamera = Camera.main;
     }
 
     void Update()
     {
+        // Encontra o Runner ativo na sala
+        if (_runner == null)
+        {
+            _runner = FindFirstObjectByType<NetworkRunner>();
+            return;
+        }
+
+        if (_runner == null || !_runner.IsRunning) return;
+
         timer += Time.deltaTime;
 
         if (timer >= fireInterval)
@@ -33,33 +40,25 @@ public class Shooter : MonoBehaviour
 
     private void Shoot()
     {
-        if (objectToShoot == null) return;
+        if (!objectToShoot.IsValid) return;
 
-        // 1. Lança um raio a partir do centro exato do ecrã (crosshair)
         Ray ray = mainCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         Vector3 targetPoint;
 
         if (Physics.Raycast(ray, out RaycastHit hitInfo, 1000f, shootableLayers))
         {
-            // Ponto de impacto no cenário/inimigo onde a mira está a apontar
             targetPoint = hitInfo.point;
         }
         else
         {
-            // Se estiver a apontar para o céu/nada, define um ponto distante à frente
             targetPoint = ray.GetPoint(1000f);
         }
 
-        // 2. Define o ponto de saída (cano da arma ou câmara)
         Vector3 spawnPosition = firePoint != null ? firePoint.position : mainCamera.transform.position;
-
-        // 3. Calcula a direção do cano da arma até ao ponto onde a mira está a apontar
         Vector3 direction = (targetPoint - spawnPosition).normalized;
-
-        // 4. Cria a rotação correta apontada para a mira
         Quaternion spawnRotation = Quaternion.LookRotation(direction);
 
-        // 5. Instancia a bala virada exatamente para o alvo
-        Instantiate(objectToShoot, spawnPosition, spawnRotation);
+        // Substituição do Instantiate local por Spawn em Rede do Fusion
+        _runner.Spawn(objectToShoot, spawnPosition, spawnRotation);
     }
 }
