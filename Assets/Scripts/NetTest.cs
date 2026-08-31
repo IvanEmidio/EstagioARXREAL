@@ -37,12 +37,13 @@ public class NetTest : SimulationBehaviour, INetworkRunnerCallbacks
 
         if (result.Ok)
         {
-            Debug.Log("Rede: Conectado com sucesso à sala!");
+            Debug.Log($"[SUCESSO] Conectado à sala! Sou o MasterClient? {runner.IsSharedModeMasterClient}");
+            Debug.Log($"[INFO] Total de jogadores na sessão neste momento: {runner.SessionInfo.PlayerCount}");
             SetupLocalCameraPosition(runner);
         }
         else
         {
-            Debug.LogError($"Erro ao conectar à rede: {result.ShutdownReason}");
+            Debug.LogError($"[ERRO] Falha ao conectar: {result.ShutdownReason}");
         }
     }
 
