@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1567384539430631572}
   - component: {fileID: 6475653998333139591}
+  - component: {fileID: -4482093650001277061}
   m_Layer: 0
   m_Name: Bullet_Prefab
   m_TagString: Untagged
@@ -45,9 +46,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1b1eedb85472b9041bcd930faa7b500a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ObjectsMovement
-  speed: -100
+  speed: -500
   rotationSpeed: 50
   rotation: 0
+--- !u!114 &-4482093650001277061
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1362959578118005537}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6dc133c6308ff6f4ca020882ee9e5bb0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DestroObject
+  timeToSelfDestruct: 3
 --- !u!1 &7511686819923792080
 GameObject:
   m_ObjectHideFlags: 0
