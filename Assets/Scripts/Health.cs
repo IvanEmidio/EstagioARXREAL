@@ -1,38 +1,43 @@
+using Fusion;
 using UnityEngine;
 
-public class Health : MonoBehaviour
+public class Health : NetworkBehaviour // Mudado para NetworkBehaviour
 {
-    [SerializeField]
-    private float Maxhealth = 100f;
+    [SerializeField] private float Maxhealth = 100f;
 
-    private float health;
+    [Networked] private float health { get; set; } // Sincronizado automaticamente pelo Fusion
 
     [SerializeField] private HealthCanvas healthCanvas;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+
+    public override void Spawned()
     {
         health = Maxhealth;
     }
 
-    // Update is called once per frame
     public void TakeHealth(float take)
     {
-        health -= take;
-        Verify();
+        // Apenas quem tem autoridade de estado altera a vida na rede
+        if (Object.HasStateAuthority)
+        {
+            health -= take;
+            Verify();
+        }
         UpdateUi();
     }
+
     public float GetHealth() { return health; }
 
     private void UpdateUi()
     {
-        healthCanvas.UpdateHealth();
+        if (healthCanvas != null) healthCanvas.UpdateHealth();
     }
 
     private void Verify()
     {
-        if (health < 0)
+        if (health <= 0 && Object.HasStateAuthority)
         {
-            Destroy(gameObject);
+            // Destrói o objeto de forma sincronizada na rede
+            Runner.Despawn(Object);
         }
     }
 }
