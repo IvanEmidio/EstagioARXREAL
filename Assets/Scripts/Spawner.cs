@@ -1,51 +1,60 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Fusion; // 1. Importante para o Fusion
 
 [System.Serializable]
 public class SpawnObject
 {
-    public Objects prefab;
+    // Nota: Certifica-te que references o NetworkPrefabRef ou a Prefab correta registada no Fusion
+    public NetworkPrefabRef networkPrefab; // Alterado para NetworkPrefabRef do Fusion
     [Min(0)]
     public float chance = 1f;
 }
 
 [RequireComponent(typeof(BoxCollider))]
-public class Spawner : MonoBehaviour
+public class Spawner : NetworkBehaviour // 2. Mudado para NetworkBehaviour
 {
     [Header("Objetos para Spawn")]
-    public List<SpawnObject> objetos = new List<SpawnObject>();
+    [SerializeField] private List<SpawnObject> objetos = new List<SpawnObject>();
 
     [Header("Tempo entre Spawns")]
-    public float tempoMinimo = 1f;
-    public float tempoMaximo = 3f;
+    [SerializeField] private float tempoMinimo = 1f;
+    [SerializeField] private float tempoMaximo = 3f;
 
     private BoxCollider boxCollider;
 
-    void Start()
+    public override void Spawned()
     {
         boxCollider = GetComponent<BoxCollider>();
-        StartCoroutine(SpawnLoop());
+
+        // 3. Apenas o MasterClient (ou um deles) é que corre o loop de spawn para evitar duplicados
+        if (Object.HasStateAuthority)
+        {
+            StartCoroutine(SpawnLoop());
+        }
     }
 
-    IEnumerator SpawnLoop()
+    System.Collections.IEnumerator SpawnLoop()
     {
         while (true)
         {
             yield return new WaitForSeconds(Random.Range(tempoMinimo, tempoMaximo));
-            Spawn();
+
+            // Garante que continua com autoridade antes de fazer o spawn
+            if (Object.HasStateAuthority)
+            {
+                Spawn();
+            }
         }
     }
 
     void Spawn()
     {
-        if (objetos.Count == 0)
-            return;
+        if (objetos.Count == 0 || Runner == null) return;
 
-        GameObject prefab = EscolherPrefab();
+        NetworkPrefabRef prefabToSpawn = EscolherPrefab();
 
-        if (prefab == null)
-            return;
+        if (!prefabToSpawn.IsValid) return;
 
         Bounds bounds = boxCollider.bounds;
 
@@ -55,36 +64,37 @@ public class Spawner : MonoBehaviour
             Random.Range(bounds.min.z, bounds.max.z)
         );
 
-        Instantiate(prefab, posicao, Quaternion.identity);
+        // 4. Substituição do Instantiate local por Spawn em Rede do Fusion
+        Runner.Spawn(prefabToSpawn, posicao, Quaternion.identity);
     }
 
-    GameObject EscolherPrefab()
+    NetworkPrefabRef EscolherPrefab()
     {
         float somaChances = 0f;
 
         foreach (var obj in objetos)
         {
-            if (obj.prefab != null)
+            if (obj.networkPrefab.IsValid)
                 somaChances += obj.chance;
         }
 
         if (somaChances <= 0)
-            return null;
+            return default;
 
         float valor = Random.Range(0f, somaChances);
 
         foreach (var obj in objetos)
         {
-            if (obj.prefab == null)
+            if (!obj.networkPrefab.IsValid)
                 continue;
 
             valor -= obj.chance;
 
             if (valor <= 0)
-                return obj.prefab.GameObject;
+                return obj.networkPrefab;
         }
 
-        return objetos[objetos.Count - 1].prefab.GameObject;
+        return objetos[objetos.Count - 1].networkPrefab;
     }
 
     void OnDrawGizmosSelected()
