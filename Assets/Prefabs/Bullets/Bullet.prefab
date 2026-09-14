@@ -132,7 +132,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1b1eedb85472b9041bcd930faa7b500a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ObjectsMovement
-  speed: -2
+  speed: 30
   rotationSpeed: 50
   rotation: 0
 --- !u!114 &3508800682094233572
@@ -163,7 +163,7 @@ MonoBehaviour:
   mask:
     serializedVersion: 2
     m_Bits: 64
-  Damage: 0
+  Damage: 25
 --- !u!54 &8558735086243565223
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -251,4 +251,6 @@ MonoBehaviour:
   NetworkedBehaviours:
   - {fileID: -4549008770155150321}
   - {fileID: -4114224889921924937}
+  - {fileID: 3508800682094233572}
+  - {fileID: -3911890789400640857}
   ForceRemoteRenderTimeframe: 0

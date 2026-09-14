@@ -320,15 +320,15 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
+  m_LocalPosition: {x: 1.5, y: 1, z: 67}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1685932894}
   - {fileID: 265516526}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
 --- !u!114 &330585547
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -416,7 +416,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   objectToShoot:
-    RawGuidValue: 00000000000000000000000000000000
+    RawGuidValue: 32fb9caa7f29dd446a1760822adead71
   fireInterval: 1
   firePoint: {fileID: 265516526}
   mainCamera: {fileID: 330585545}
@@ -935,8 +935,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89ae6a1158492e44cb09e78141cd553f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NetTest
-  player1Position: {x: -1.5, y: 1.5, z: 0}
-  player2Position: {x: 1.5, y: 1.5, z: 0}
+  player1Position: {x: -1.5, y: 1.5, z: 67}
+  player2Position: {x: 1.5, y: 1.5, z: 67}
   lookAtCenter: {x: 0, y: 1.5, z: 4}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

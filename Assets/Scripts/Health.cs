@@ -1,42 +1,66 @@
 using Fusion;
 using UnityEngine;
+using UnityEngine.UI; // Se usares UI tradicional ou TextMeshPro
 
-public class Health : NetworkBehaviour // Mudado para NetworkBehaviour
+public class Health : NetworkBehaviour
 {
-    [SerializeField] private float Maxhealth = 100f;
+    [Header("Configuração de Vida")]
+    [SerializeField] private float maxHealth = 100f;
 
-    [Networked] private float health { get; set; } // Sincronizado automaticamente pelo Fusion
+    // Esta variável é sincronizada automaticamente pelo Fusion para todos os PCs!
+    [Networked, OnChangedRender(nameof(OnHealthChanged))]
+    private float currentHealth { get; set; }
 
-    [SerializeField] private HealthCanvas healthCanvas;
+    [Header("UI (Opcional)")]
+    [SerializeField] private Image healthBarFill; // Ou Text para mostrar o valor
 
     public override void Spawned()
     {
-        health = Maxhealth;
-    }
-
-    public void TakeHealth(float take)
-    {
-        // Apenas quem tem autoridade de estado altera a vida na rede
+        // Quem cria o objeto inicializa a vida máxima
         if (Object.HasStateAuthority)
         {
-            health -= take;
-            Verify();
+            currentHealth = maxHealth;
         }
-        UpdateUi();
     }
 
-    public float GetHealth() { return health; }
-
-    private void UpdateUi()
+    public float GetHealth()
     {
-        if (healthCanvas != null) healthCanvas.UpdateHealth();
+        return currentHealth;
     }
 
-    private void Verify()
+    // Método chamado quando a bala embate no meteoro (chamado pelo script Attack da bala)
+    public void TakeHealth(float damage)
     {
-        if (health <= 0 && Object.HasStateAuthority)
+        // Apenas quem tem autoridade de estado é que altera o valor da vida
+        if (!Object.HasStateAuthority) return;
+
+        currentHealth -= damage;
+
+        if (currentHealth <= 0f)
         {
-            // Destrói o objeto de forma sincronizada na rede
+            Die();
+        }
+    }
+
+    // Este método dispara automaticamente em TODOS os PCs quando a variável currentHealth muda na rede
+    private void OnHealthChanged()
+    {
+        UpdateUI();
+    }
+
+    private void UpdateUI()
+    {
+        if (healthBarFill != null)
+        {
+            healthBarFill.fillAmount = currentHealth / maxHealth;
+        }
+    }
+
+    private void Die()
+    {
+        // Destrói o meteoro de forma sincronizada na rede para todos os jogadores
+        if (Runner != null && Object != null)
+        {
             Runner.Despawn(Object);
         }
     }

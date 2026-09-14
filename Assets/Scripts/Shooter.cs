@@ -1,10 +1,10 @@
 using Fusion;
 using UnityEngine;
 
-public class Shooter : MonoBehaviour // Mantém-se como MonoBehaviour se estiver na câmara
+public class Shooter : MonoBehaviour // Mudado de volta para MonoBehaviour para não exigir Network Object
 {
     [Header("Configurações do Disparo")]
-    [SerializeField] private NetworkPrefabRef objectToShoot; // Alterado para NetworkPrefabRef do Fusion
+    [SerializeField] private NetworkPrefabRef objectToShoot;
     [SerializeField] private float fireInterval = 0.15f;
     [SerializeField] private Transform firePoint;
     [SerializeField] private Camera mainCamera;
@@ -20,14 +20,16 @@ public class Shooter : MonoBehaviour // Mantém-se como MonoBehaviour se estiver 
 
     void Update()
     {
-        // Encontra o Runner ativo na sala
-        if (_runner == null)
+        // Encontra o Runner ativo na sessão se ainda não o tiver guardado
+        if (_runner == null || !_runner.IsRunning)
         {
-            _runner = FindFirstObjectByType<NetworkRunner>();
+            _runner = NetworkRunner.GetRunnerForGameObject(gameObject);
+            if (_runner == null)
+            {
+                _runner = FindFirstObjectByType<NetworkRunner>();
+            }
             return;
         }
-
-        if (_runner == null || !_runner.IsRunning) return;
 
         timer += Time.deltaTime;
 
@@ -41,7 +43,10 @@ public class Shooter : MonoBehaviour // Mantém-se como MonoBehaviour se estiver 
     private void Shoot()
     {
         if (!objectToShoot.IsValid) return;
+        if (mainCamera == null) mainCamera = Camera.main;
+        if (mainCamera == null) return;
 
+        // Dispara o raio a partir do centro do ecrã
         Ray ray = mainCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         Vector3 targetPoint;
 
@@ -58,7 +63,10 @@ public class Shooter : MonoBehaviour // Mantém-se como MonoBehaviour se estiver 
         Vector3 direction = (targetPoint - spawnPosition).normalized;
         Quaternion spawnRotation = Quaternion.LookRotation(direction);
 
-        // Substituição do Instantiate local por Spawn em Rede do Fusion
-        _runner.Spawn(objectToShoot, spawnPosition, spawnRotation);
+        // Faz o spawn da bala através do NetworkRunner encontrado
+        if (_runner != null)
+        {
+            _runner.Spawn(objectToShoot, spawnPosition, spawnRotation);
+        }
     }
 }

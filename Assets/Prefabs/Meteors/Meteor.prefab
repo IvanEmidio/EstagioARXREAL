@@ -84,6 +84,7 @@ MonoBehaviour:
   NestedObjects: []
   NetworkedBehaviours:
   - {fileID: 7754977176144580405}
+  - {fileID: 4854519696463685906}
   - {fileID: 8830069442011979363}
   - {fileID: 8790897122096231174}
   - {fileID: 3138769044382391868}
@@ -191,8 +192,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89caa2678f1c2904b8ef2bf30aa4dd8d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  Maxhealth: 100
-  healthCanvas: {fileID: 2903248311976138406}
+  maxHealth: 100
+  healthBarFill: {fileID: 4755147547583031856}
 --- !u!136 &3941932906083188350
 CapsuleCollider:
   m_ObjectHideFlags: 0

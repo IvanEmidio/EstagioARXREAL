@@ -1,18 +1,21 @@
+using Fusion;
 using UnityEngine;
 
-public class DestroObject : MonoBehaviour
+public class DestroObject : NetworkBehaviour // Mudado para NetworkBehaviour
 {
-    [SerializeField]
-    private float timeToSelfDestruct = 10f;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    [SerializeField] private float timeToSelfDestruct = 10f;
+    private float timer;
 
-    // Update is called once per frame
-    void Update()
+    public override void FixedUpdateNetwork()
     {
-        Destroy(this.gameObject, timeToSelfDestruct);
+        // Apenas quem tem autoridade de estado gere a destruição temporizada da bala
+        if (Object.HasStateAuthority)
+        {
+            timer += Runner.DeltaTime;
+            if (timer >= timeToSelfDestruct)
+            {
+                Runner.Despawn(Object);
+            }
+        }
     }
 }
