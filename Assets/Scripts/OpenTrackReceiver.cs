@@ -15,9 +15,12 @@ public class OpenTrackReceiver : MonoBehaviour
     [Header("Tecla para Centrar")]
     public KeyCode centerKey = KeyCode.C;
 
-    [Header("Ajuste Manual de Inclinação (Pitch Offset)")]
-    [Tooltip("Soma graus à vista vertical (ex: 0, 15, 30) para ajustar a altura do olhar padrão.")]
+    [Header("Ajuste Manual")]
     public float manualPitchOffset = 0f;
+
+    [Header("Suavização (Aumenta se tremer, diminui se ficar pesado)")]
+    [Range(5f, 50f)]
+    public float smoothingSpeed = 25f;
 
     private UdpClient udpClient;
     private Thread receiveThread;
@@ -26,11 +29,13 @@ public class OpenTrackReceiver : MonoBehaviour
     private Vector3 rawRotation;
     private readonly object lockObject = new object();
 
-    // Guardar os valores brutos capturados no momento do 'C'
     private float pitchCenter = 0f;
     private float yawCenter = 0f;
     private bool isCalibrated = false;
-    private float lastValidYaw;
+
+    // Valores suavizados anteriores para evitar saltos bruscos
+    private float smoothPitch = 0f;
+    private float smoothYaw = 0f;
 
     void Start()
     {
@@ -71,7 +76,7 @@ public class OpenTrackReceiver : MonoBehaviour
         }
     }
 
-    void Update()
+    void LateUpdate()
     {
         Vector3 rot;
         lock (lockObject)
@@ -82,29 +87,31 @@ public class OpenTrackReceiver : MonoBehaviour
         float currentPitch = -rot.x;
         float currentYaw = rot.y;
 
-        // Se for a primeira vez ou se carregares no 'C', guarda o centro exato
+        // Calibragem no início ou ao carregar no 'C'
         if (!isCalibrated || Input.GetKeyDown(centerKey))
         {
             pitchCenter = currentPitch;
             yawCenter = currentYaw;
+            smoothPitch = 0f;
+            smoothYaw = 0f;
             isCalibrated = true;
             Debug.Log("Centro calibrado!");
         }
 
-        // Calcula os ângulos relativos ao ponto em que carregaste no 'C'
-        float finalPitch = (currentPitch - pitchCenter) + manualPitchOffset;
-        float finalYaw = currentYaw - yawCenter;
+        // Calcula os ângulos relativos
+        float targetPitch = (currentPitch - pitchCenter) + manualPitchOffset;
+        float targetYaw = currentYaw - yawCenter;
 
-        // --- GARANTIA CONTRA DIAGONAL ---
-        // 1. O Yaw roda SEMPRE em torno do vetor global do mundo (Vector3.up).
-        // Isso impede fisicamente a câmara de inclinar de lado ao virar a cabeça.
-        Quaternion yawRotation = Quaternion.AngleAxis(finalYaw, Vector3.up);
+        // Suaviza os valores numéricos ANTES de criar o Quaternion (evita o jitter bruto)
+        smoothPitch = Mathf.Lerp(smoothPitch, targetPitch, Time.deltaTime * smoothingSpeed);
+        smoothYaw = Mathf.Lerp(smoothYaw, targetYaw, Time.deltaTime * smoothingSpeed);
 
-        // 2. O Pitch roda no eixo X local
-        Quaternion pitchRotation = Quaternion.AngleAxis(finalPitch, Vector3.right);
+        // Aplica a rotação de forma limpa usando Euler (Pitch no X, Yaw no Y, Roll a 0 para não inclinar de lado)
+        Quaternion targetRotation = Quaternion.Euler(smoothPitch, smoothYaw, 0f);
 
-        // Aplica a rotação combinada
-        targetTransform.localRotation = yawRotation * pitchRotation;
+        // Se a câmara for um objeto raiz na cena, usamos rotation. Se for filha de outro objeto, usamos localRotation.
+        // Vamos garantir que aplicamos diretamente no transform alvo:
+        targetTransform.localRotation = targetRotation;
     }
 
     void OnApplicationQuit()

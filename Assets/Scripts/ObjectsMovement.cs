@@ -13,7 +13,7 @@ public class ObjectsMovement : NetworkBehaviour
     {
         if (Object.HasStateAuthority)
         {
-            moveDirection = transform.forward;
+            moveDirection = -transform.forward;
         }
     }
 

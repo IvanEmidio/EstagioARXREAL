@@ -31,9 +31,15 @@ public class Spawner : MonoBehaviour // <- Mudado de volta para MonoBehaviour no
 
     System.Collections.IEnumerator SpawnLoop()
     {
+
         while (true)
         {
             yield return new WaitForSeconds(Random.Range(tempoMinimo, tempoMaximo));
+            var runner = NetworkRunner.GetRunnerForGameObject(gameObject);
+            if (runner == null || !runner.IsRunning)
+            {
+                continue; // Se a rede ainda não estiver pronta, salta este ciclo e tenta no próximo
+            }
             Spawn();
         }
     }

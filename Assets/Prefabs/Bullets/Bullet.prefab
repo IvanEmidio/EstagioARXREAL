@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6140261188247493198}
   - component: {fileID: 2813632430800401764}
   - component: {fileID: 4543946324496119006}
-  - component: {fileID: -4114224889921924937}
+  - component: {fileID: 913301762171835538}
   - component: {fileID: 3508800682094233572}
   - component: {fileID: -3911890789400640857}
   - component: {fileID: 8558735086243565223}
@@ -120,7 +120,7 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
---- !u!114 &-4114224889921924937
+--- !u!114 &913301762171835538
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -129,10 +129,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 3936099615754893629}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1b1eedb85472b9041bcd930faa7b500a, type: 3}
+  m_Script: {fileID: 11500000, guid: 1257a9ff4db7b004687426248b97f9c8, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ObjectsMovement
-  speed: 30
+  m_EditorClassIdentifier: Assembly-CSharp::BulletsMovement
+  speed: 50
   rotationSpeed: 50
   rotation: 0
 --- !u!114 &3508800682094233572
@@ -147,7 +147,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6dc133c6308ff6f4ca020882ee9e5bb0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DestroObject
-  timeToSelfDestruct: 5
+  timeToSelfDestruct: 8
 --- !u!114 &-3911890789400640857
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -250,7 +250,7 @@ MonoBehaviour:
   NestedObjects: []
   NetworkedBehaviours:
   - {fileID: -4549008770155150321}
-  - {fileID: -4114224889921924937}
+  - {fileID: 913301762171835538}
   - {fileID: 3508800682094233572}
   - {fileID: -3911890789400640857}
   ForceRemoteRenderTimeframe: 0

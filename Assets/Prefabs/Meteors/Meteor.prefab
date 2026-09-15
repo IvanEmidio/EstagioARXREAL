@@ -49,7 +49,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6dc133c6308ff6f4ca020882ee9e5bb0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  timeToSelfDestruct: 15
+  timeToSelfDestruct: 25
 --- !u!114 &8830069442011979363
 MonoBehaviour:
   m_ObjectHideFlags: 0
