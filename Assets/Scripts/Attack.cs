@@ -1,27 +1,25 @@
 using Fusion;
 using UnityEngine;
 
-public class Attack : NetworkBehaviour // Mudado para NetworkBehaviour
+public class Attack : NetworkBehaviour
 {
     [SerializeField] private LayerMask mask;
     [SerializeField] private float Damage;
 
     private void OnTriggerEnter(Collider other)
     {
-        // Apenas o PC com autoridade processa a colisão para evitar duplicação de dano
-        if (Object != null && !Object.HasStateAuthority) return;
-
-        // Converte a camada do objeto em bitmask e verifica se ela está presente no LayerMask
+        // Deixamos de verificar HasStateAuthority aqui para permitir que a bala de qualquer jogador processe o impacto
         if (((1 << other.gameObject.layer) & mask) != 0)
         {
             Health health = other.GetComponent<Health>();
             if (health != null)
             {
-                health.TakeHealth(Damage);
+                // Em vez de mexer direto na vida, chamamos a RPC do meteoro
+                health.RPC_TakeHealth(Damage);
             }
 
-            // Destrói a bala de forma sincronizada na rede após embater em algo
-            if (Runner != null && Object != null)
+            // Destrói a bala na rede após embater
+            if (Runner != null && Object != null && Object.HasStateAuthority)
             {
                 Runner.Despawn(Object);
             }
