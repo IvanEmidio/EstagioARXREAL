@@ -7,12 +7,15 @@ using UnityEngine;
 
 public class NetTest : SimulationBehaviour, INetworkRunnerCallbacks
 {
-    [Header("Posições Fixas dos Jogadores")]
-    [SerializeField] private Vector3 player1Position = new Vector3(-1.5f, 1.5f, 0f); // Esquerda
-    [SerializeField] private Vector3 player2Position = new Vector3(1.5f, 1.5f, 0f);  // Direita
+    [Header("Posição do Jogador 1 (Base)")]
+    [SerializeField] private Vector3 player1Position = new Vector3(-1.5f, 1.5f, 0f);
+
+    [Header("Desvio Relativo para o Jogador 2")]
+    [Tooltip("Distância somada à posição do Jogador 1 para colocar o Jogador 2 ao lado.")]
+    [SerializeField] private Vector3 player2Offset = new Vector3(2.0f, 0f, 0f);
 
     [Header("Rotações Iniciais (Euler Angles) para olhar para o Spawner")]
-    [SerializeField] private Vector3 player1Rotation = new Vector3(0f, 0f, 0f);     // Ajusta o Y se precisar de rodar (ex: 0, 90, 180, 270)
+    [SerializeField] private Vector3 player1Rotation = new Vector3(0f, 0f, 0f);
     [SerializeField] private Vector3 player2Rotation = new Vector3(0f, 0f, 0f);
 
     [Header("Centro do Jogo (Referência)")]
@@ -58,17 +61,19 @@ public class NetTest : SimulationBehaviour, INetworkRunnerCallbacks
 
         bool isMaster = runner.IsSharedModeMasterClient;
 
-        // 1. Define a posição baseada no jogador
-        Camera.main.transform.position = isMaster ? player1Position : player2Position;
+        // 1. Define a posição: O Master (Player 1) usa a posição base. O Player 2 usa a posição do P1 + o desvio (offset).
+        if (isMaster)
+        {
+            Camera.main.transform.position = player1Position;
+            Camera.main.transform.rotation = Quaternion.Euler(player1Rotation);
+        }
+        else
+        {
+            Camera.main.transform.position = player1Position + player2Offset;
+            Camera.main.transform.rotation = Quaternion.Euler(player2Rotation);
+        }
 
-        // 2. Define a rotação inicial exata através de ângulos limpos no Inspector
-        Vector3 targetRot = isMaster ? player1Rotation : player2Rotation;
-        Camera.main.transform.rotation = Quaternion.Euler(targetRot);
-
-        // Se quiseres usar o LookAt mas notas que fica ao contrário, podes inverter a rotação ou usar os ângulos de Euler acima.
-        // Dica: Se o jogador estiver de costas, basta ires ao campo 'Player 1 Rotation' no Inspector e mudares o eixo Y para 180.
-
-        Debug.Log($"Câmara posicionada para: {(isMaster ? "Jogador 1 (Esquerda)" : "Jogador 2 (Direita)")}");
+        Debug.Log($"Câmara posicionada para: {(isMaster ? "Jogador 1" : "Jogador 2 (Ao lado do Jogador 1)")}");
     }
 
     // --- CALLBACKS OBRIGATÓRIOS DO FUSION ---
