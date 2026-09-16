@@ -31,9 +31,13 @@ public class Health : NetworkBehaviour
     // Método chamado quando a bala embate no meteoro (chamado pelo script Attack da bala)
     public void TakeHealth(float damage)
     {
-        // Apenas quem tem autoridade de estado é que altera o valor da vida
-        if (!Object.HasStateAuthority) return;
+        // Se não tivermos autoridade de estado, pedimos-a à rede para podermos alterar a vida do meteoro
+        if (!Object.HasStateAuthority)
+        {
+            Object.RequestStateAuthority();
+        }
 
+        // Após pedir a autoridade, aplicamos o dano
         currentHealth -= damage;
 
         if (currentHealth <= 0f)
