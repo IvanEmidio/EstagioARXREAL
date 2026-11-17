@@ -1,6 +1,7 @@
+using Fusion;
 using System.Collections.Generic;
 using UnityEngine;
-using Fusion;
+using static Unity.Collections.Unicode;
 
 [System.Serializable]
 public class SpawnObject
@@ -31,14 +32,24 @@ public class Spawner : MonoBehaviour // <- Mudado de volta para MonoBehaviour no
 
     System.Collections.IEnumerator SpawnLoop()
     {
-
         while (true)
         {
-            yield return new WaitForSeconds(Random.Range(tempoMinimo, tempoMaximo));
+            // 1. Primeiro procuramos o runner ativo na cena
             var runner = NetworkRunner.GetRunnerForGameObject(gameObject);
+
+            // 2. Depois usamos o runner obtido para aceder ao SimulationTime (ou Time.time se for nulo)
+            float tempoDecorrido = (runner != null) ? runner.SimulationTime : Time.time;
+
+            // Exemplo: A cada 2 minutos (120 segundos), o intervalo de tempo reduz até 30% do original
+            float fatorDificuldade = Mathf.Clamp(1f - (tempoDecorrido / 120f), 0.3f, 1f);
+
+            float tempoEsperaAtual = Random.Range(tempoMinimo, tempoMaximo) * fatorDificuldade;
+
+            yield return new WaitForSeconds(tempoEsperaAtual);
+
             if (runner == null || !runner.IsRunning)
             {
-                continue; // Se a rede ainda não estiver pronta, salta este ciclo e tenta no próximo
+                continue;
             }
             Spawn();
         }
