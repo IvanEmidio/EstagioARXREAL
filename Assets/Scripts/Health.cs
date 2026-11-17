@@ -13,6 +13,10 @@ public class Health : NetworkBehaviour
     [Header("UI (Opcional)")]
     [SerializeField] private Image healthBarFill;
 
+    private int count;
+    private float timer;
+
+
     public override void Spawned()
     {
         if (Object.HasStateAuthority)
@@ -24,6 +28,19 @@ public class Health : NetworkBehaviour
     public float GetHealth()
     {
         return currentHealth;
+    }
+
+    private void Update()
+    {
+        if(count > 0)
+        {
+            timer += Time.deltaTime;
+        }
+
+        if (timer > 1)
+        {
+            count = 0;
+        }
     }
 
     // Esta função passa a ser uma RPC (Remote Procedure Call)

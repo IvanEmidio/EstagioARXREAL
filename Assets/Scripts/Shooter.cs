@@ -9,6 +9,7 @@ public class Shooter : MonoBehaviour // Mudado de volta para MonoBehaviour para 
     [SerializeField] private Transform firePoint;
     [SerializeField] private Camera mainCamera;
     [SerializeField] private LayerMask shootableLayers = ~0;
+    [SerializeField] private ChargeLaser chargeLaser;
 
     private float timer;
     private NetworkRunner _runner;
@@ -28,6 +29,7 @@ public class Shooter : MonoBehaviour // Mudado de volta para MonoBehaviour para 
             {
                 _runner = FindFirstObjectByType<NetworkRunner>();
             }
+            Debug.Log("No runner");
             return;
         }
 
@@ -35,7 +37,8 @@ public class Shooter : MonoBehaviour // Mudado de volta para MonoBehaviour para 
 
         if (timer >= fireInterval)
         {
-            Shoot();
+            //Shoot();
+            chargeLaser.TriggerLaser();
             timer = 0f;
         }
     }
