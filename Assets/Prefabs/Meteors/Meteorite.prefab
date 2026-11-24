@@ -222,7 +222,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   maxHealth: 1
   healthBarFill: {fileID: 4755147547583031856}
-  allPlayerNeedToHit: 0
+  allPlayerNeedToHit: 1
   resetTime: 3
   deathVfxPrefab: {fileID: 8252825715151173086, guid: 0cf8d7a7f6e5a574ea4af1c79c4121d1, type: 3}
 --- !u!136 &3941932906083188350
