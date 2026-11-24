@@ -1,4 +1,6 @@
 using Fusion;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,15 +15,24 @@ public class Health : NetworkBehaviour
     [Header("UI (Opcional)")]
     [SerializeField] private Image healthBarFill;
 
-    private int count;
-    private float timer;
+    [Header("Co-op Hit")]
+    [SerializeField] private bool allPlayerNeedToHit;
+    [SerializeField] private float resetTime = 3f;
 
+    [Header("VFX de Morte")]
+    [SerializeField] private GameObject deathVfxPrefab;
+
+    // Guarda os jogadores únicos que já acertaram (não repete o mesmo jogador)
+    private HashSet<PlayerRef> playersWhoHit = new HashSet<PlayerRef>();
+    private float timer;
 
     public override void Spawned()
     {
+        if (Object == null) return;
         if (Object.HasStateAuthority)
         {
             currentHealth = maxHealth;
+            timer = resetTime;
         }
     }
 
@@ -32,28 +43,47 @@ public class Health : NetworkBehaviour
 
     private void Update()
     {
-        if(count > 0)
-        {
-            timer += Time.deltaTime;
-        }
+        // Só quem tem StateAuthority gere a lógica de reset
+        if (Object == null) return;
+        if (!Object.HasStateAuthority) return;
 
-        if (timer > 1)
+        if (playersWhoHit.Count > 0)
         {
-            count = 0;
+            timer -= Time.deltaTime;
+
+            if (timer <= 0f)
+            {
+                playersWhoHit.Clear();
+                timer = resetTime;
+            }
         }
     }
 
-    // Esta função passa a ser uma RPC (Remote Procedure Call)
-    // RpcSources.All significa que QUALQUER jogador pode enviar o pedido de dano
-    // RpcTargets.StateAuthority significa que é executado no computador que tem autoridade sobre o meteoro
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
-    public void RPC_TakeHealth(float damage)
+    public void RPC_TakeHealth(float damage, RpcInfo info = default)
     {
-        // Como corre apenas na máquina com autoridade, não há conflitos de concorrência!
+        if (allPlayerNeedToHit)
+        {
+            if (playersWhoHit.Count == 0)
+            {
+                timer = resetTime;
+            }
+
+            playersWhoHit.Add(info.Source);
+
+            if (playersWhoHit.Count < Runner.ActivePlayers.Count())
+            {
+                return;
+            }
+
+            playersWhoHit.Clear();
+        }
+
         currentHealth -= damage;
 
         if (currentHealth <= 0f)
         {
+            SpawnDeathVFX();
             Die();
         }
     }
@@ -61,6 +91,14 @@ public class Health : NetworkBehaviour
     private void OnHealthChanged()
     {
         UpdateUI();
+    }
+
+    private void SpawnDeathVFX()
+    {
+        if (deathVfxPrefab != null)
+        {
+            Instantiate(deathVfxPrefab, transform.position, Quaternion.identity);
+        }
     }
 
     private void UpdateUI()
