@@ -16,8 +16,12 @@ public class GameHealth : NetworkBehaviour
     [Networked, OnChangedRender(nameof(OnGameOverChanged))]
     private NetworkBool IsGameOver { get; set; }
 
-    [Header("Barra de Vida")]
-    [SerializeField] private Image healthBarFill;
+    [Header("Health Slider")]
+    [SerializeField] private Slider healthSlider;
+
+    [Header("Game Over UI")]
+    [SerializeField] private GameObject gameOverPanel;
+    [SerializeField] private Button restartButton;
 
     private string DebugPlayer =>
         Runner != null ? Runner.LocalPlayer.ToString() : "Sem Runner";
@@ -35,19 +39,21 @@ public class GameHealth : NetworkBehaviour
         {
             currentHealth = maxHealth;
             IsGameOver = false;
+        }
 
-            Debug.Log(
-                $"[GAME HEALTH] VIDA INICIALIZADA: {currentHealth}"
-            );
+        if (gameOverPanel != null)
+            gameOverPanel.SetActive(false);
+
+        if (restartButton != null)
+        {
+            restartButton.onClick.RemoveListener(RestartGame);
+            restartButton.onClick.AddListener(RestartGame);
         }
 
         UpdateUI();
 
-        // Verificar estado inicial, incluindo late joiners.
         if (IsGameOver)
-        {
             TriggerGameOver();
-        }
     }
 
     public float GetHealth()
@@ -60,94 +66,159 @@ public class GameHealth : NetworkBehaviour
         return IsGameOver;
     }
 
+    // =====================================================
+    // DANO PARTILHADO
+    // =====================================================
+
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
     public void RPC_TakeSharedDamage(float damage, RpcInfo info = default)
     {
-        Debug.Log(
-            $"[DAMAGE] RPC RECEBIDA | Jogador: {info.Source} | " +
-            $"Dano: {damage}"
-        );
-
         if (!Object.HasStateAuthority)
             return;
 
         if (damage <= 0f || IsGameOver)
-        {
-            Debug.LogWarning("[DAMAGE] Dano ignorado!");
             return;
-        }
 
         float oldHealth = currentHealth;
 
         currentHealth = Mathf.Max(0f, currentHealth - damage);
 
-        Debug.LogError(
-            $"[DAMAGE] VIDA: {oldHealth} -> {currentHealth}"
-        );
+        Debug.Log(
+            $"[DAMAGE] {oldHealth} -> {currentHealth} | " +
+        $"Origem: {info.Source}"
+    );
 
         if (currentHealth <= 0f)
         {
             IsGameOver = true;
 
-            Debug.LogError(
-                "[GAME OVER] VIDA CHEGOU A ZERO!"
-            );
+            Debug.LogError("[GAME OVER] VIDA CHEGOU A ZERO!");
 
             TriggerGameOver();
         }
     }
 
+    // =====================================================
+    // GAME OVER
+    // =====================================================
+
     private void OnHealthChanged()
     {
-        Debug.Log(
-            $"[GAME HEALTH] VIDA SINCRONIZADA: " +
-            $"{currentHealth}/{maxHealth} | Jogador: {DebugPlayer}"
-        );
-
         UpdateUI();
     }
 
     private void OnGameOverChanged()
     {
-        Debug.LogError(
-            $"[GAME OVER] ESTADO SINCRONIZADO! " +
-            $"Jogador: {DebugPlayer}"
-        );
-
         if (IsGameOver)
         {
             TriggerGameOver();
         }
+        else
+        {
+            if (gameOverPanel != null)
+                gameOverPanel.SetActive(false);
+
+            UpdateUI();
+        }
     }
+
 
     private void UpdateUI()
     {
-        if (healthBarFill == null)
-            return;
+        float normalizedHealth = Mathf.Clamp01(currentHealth / maxHealth);
 
-        healthBarFill.fillAmount =
-            Mathf.Clamp01(currentHealth / maxHealth);
+        if (healthSlider != null)
+        {
+            healthSlider.minValue = 0f;
+            healthSlider.maxValue = maxHealth;
+            healthSlider.value = Mathf.Clamp(currentHealth, 0f, maxHealth);
+
+            // Garantir que não resta qualquer preenchimento
+            if (currentHealth <= 0f)
+            {
+                healthSlider.value = 0f;
+
+                if (healthSlider.fillRect != null)
+                    healthSlider.fillRect.localScale = new Vector3(0f, 1f, 1f);
+            }
+            else
+            {
+                if (healthSlider.fillRect != null)
+                    healthSlider.fillRect.localScale = Vector3.one;
+            }
+        }
     }
+
 
     private void TriggerGameOver()
     {
         Debug.LogError(
-            $"[GAME OVER] ATIVADO NO JOGADOR {DebugPlayer}! " +
-            "A BASE FOI DESTRUÍDA!"
+            $"[GAME OVER] ATIVADO | Jogador: {DebugPlayer}"
+    );
+
+        if (gameOverPanel != null)
+            gameOverPanel.SetActive(true);
+    }
+
+    // =====================================================
+    // RESTART
+    // =====================================================
+
+    public void RestartGame()
+    {
+        if (Object == null || !Object.IsValid)
+            return;
+
+        if (!IsGameOver)
+            return;
+
+        Debug.Log("[RESTART] Pedido de restart enviado.");
+
+        RPC_RestartGame();
+    }
+
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    private void RPC_RestartGame()
+    {
+        if (!Object.HasStateAuthority)
+            return;
+
+        if (!IsGameOver)
+            return;
+
+        Debug.Log("[RESTART] A reiniciar a ronda...");
+
+        // Reiniciar os spawners da cena.
+        Spawner[] spawners = FindObjectsByType<Spawner>(
+            FindObjectsSortMode.None
         );
 
-        // Aqui vamos posteriormente ativar o ecrã de Game Over.
+        foreach (Spawner spawner in spawners)
+        {
+            spawner.ResetRound();
+        }
+
+        // Restaurar vida.
+        currentHealth = maxHealth;
+
+        // Terminar o estado de Game Over.
+        IsGameOver = false;
+
+        Debug.Log("[RESTART] RONDA REINICIADA COM SUCESSO!");
     }
+
+    // =====================================================
+    // LIMPEZA
+    // =====================================================
 
     public override void Despawned(
         NetworkRunner runner,
         bool hasState)
     {
-        Debug.Log("[GAME HEALTH] Objeto removido da rede.");
+        if (restartButton != null)
+            restartButton.onClick.RemoveListener(RestartGame);
 
         if (Instance == this)
-        {
             Instance = null;
-        }
     }
 }

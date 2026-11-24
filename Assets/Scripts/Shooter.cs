@@ -21,6 +21,7 @@ public class Shooter : MonoBehaviour // Mudado de volta para MonoBehaviour para 
 
     void Update()
     {
+
         // Encontra o Runner ativo na sessão se ainda não o tiver guardado
         if (_runner == null || !_runner.IsRunning)
         {
@@ -30,6 +31,13 @@ public class Shooter : MonoBehaviour // Mudado de volta para MonoBehaviour para 
                 _runner = FindFirstObjectByType<NetworkRunner>();
             }
             Debug.Log("No runner");
+            return;
+        }
+
+        // Não disparar quando o jogo terminou
+        if (GameHealth.Instance != null &&
+            GameHealth.Instance.GetGameOver())
+        {
             return;
         }
 
