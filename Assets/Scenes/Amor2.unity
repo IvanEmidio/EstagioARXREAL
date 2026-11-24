@@ -435,6 +435,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967295
   chargeLaser: {fileID: 1640230662}
+  laserRelay: {fileID: 0}
 --- !u!114 &330585552
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -872,6 +873,7 @@ GameObject:
   - component: {fileID: 1035714464}
   - component: {fileID: 1035714465}
   - component: {fileID: 1035714466}
+  - component: {fileID: 1035714467}
   m_Layer: 0
   m_Name: Damage Area
   m_TagString: Untagged
@@ -944,6 +946,26 @@ MonoBehaviour:
   allPlayerNeedToHit: 0
   resetTime: 3
   deathVfxPrefab: {fileID: 0}
+--- !u!114 &1035714467
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1035714462}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Fusion.Runtime.dll::Fusion.NetworkObject
+  SortKey: 1980038863
+  SendPriority: 1
+  EnableInterpolation: 1
+  Flags: 262146
+  NestedObjects: []
+  NetworkedBehaviours:
+  - {fileID: 1035714466}
+  ForceRemoteRenderTimeframe: 0
 --- !u!1 &1107630927
 GameObject:
   m_ObjectHideFlags: 0
@@ -1293,7 +1315,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 596720925284553602, guid: a90033e876e79874eb15f031bc43e42b, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -70.7
+      value: -64.4
       objectReference: {fileID: 0}
     - target: {fileID: 596720925284553602, guid: a90033e876e79874eb15f031bc43e42b, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1346,6 +1368,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1964602099}
   - component: {fileID: 1964602100}
+  - component: {fileID: 1964602102}
+  - component: {fileID: 1964602101}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -1385,6 +1409,39 @@ MonoBehaviour:
   player1Rotation: {x: 0, y: 0, z: 0}
   player2Rotation: {x: 0, y: 0, z: 0}
   lookAtCenter: {x: 0, y: 1.5, z: 4}
+--- !u!114 &1964602101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1964602097}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Fusion.Runtime.dll::Fusion.NetworkObject
+  SortKey: 3993956426
+  SendPriority: 1
+  EnableInterpolation: 1
+  Flags: 262146
+  NestedObjects: []
+  NetworkedBehaviours:
+  - {fileID: 1964602102}
+  ForceRemoteRenderTimeframe: 0
+--- !u!114 &1964602102
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1964602097}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 715f97156c36e1d43842c9e3332de0f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LaserNetworkRelay
+  chargeLaser: {fileID: 1640230662}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

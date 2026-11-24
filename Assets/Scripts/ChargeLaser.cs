@@ -111,7 +111,7 @@ public class ChargeLaser : MonoBehaviour
     }
 
     // Calcula a direção da ponta da arma (transform.position) até ao centro do ecrã
-    private Vector3 GetAimDirection()
+    public Vector3 GetAimDirection()
     {
         if (mainCamera == null) return transform.forward;
 
@@ -153,5 +153,87 @@ public class ChargeLaser : MonoBehaviour
                 targetHealth.RPC_TakeHealth(damage);
             }
         }
+    }
+
+    public void TriggerRemoteLaser(Vector3 origin, Vector3 direction)
+    {
+        if (!isFiring)
+        {
+            StartCoroutine(RemoteFireSequence(origin, direction.normalized));
+        }
+    }
+
+    private IEnumerator RemoteFireSequence(Vector3 origin, Vector3 direction)
+    {
+        isFiring = true;
+        lineRenderer.enabled = true;
+        lineRenderer.useWorldSpace = true;
+
+        // FASE 1 - MIRA
+        lineRenderer.startWidth = aimWidth;
+        lineRenderer.endWidth = aimWidth;
+        lineRenderer.startColor = aimColor;
+        lineRenderer.endColor = aimColor;
+
+        float timer = 0f;
+        Vector3 endPoint = origin + direction * maxDistance;
+
+        while (timer < aimDuration)
+        {
+            timer += Time.deltaTime;
+
+            endPoint = CalculateRemoteEndPoint(origin, 0.01f, direction);
+
+            lineRenderer.SetPosition(0, origin);
+            lineRenderer.SetPosition(1, endPoint);
+
+            yield return null;
+        }
+
+        // FASE 2 - BLAST
+        lineRenderer.startWidth = blastWidth;
+        lineRenderer.endWidth = blastWidth;
+        lineRenderer.startColor = blastColor;
+        lineRenderer.endColor = blastColor;
+
+        endPoint = CalculateRemoteEndPoint(origin, blastWidth * 0.4f, direction);
+
+        lineRenderer.SetPosition(0, origin);
+        lineRenderer.SetPosition(1, endPoint);
+
+        // Não aplicar dano no laser recebido pela rede!
+
+        yield return new WaitForSeconds(blastDuration);
+
+        // FASE 3 - FADE
+        float fadeTimer = 0f;
+
+        while (fadeTimer < fadeDuration)
+        {
+            fadeTimer += Time.deltaTime;
+
+            float progress = fadeTimer / fadeDuration;
+            float currentWidth = Mathf.Lerp(blastWidth, 0f, progress);
+
+            lineRenderer.startWidth = currentWidth;
+            lineRenderer.endWidth = currentWidth;
+
+            lineRenderer.SetPosition(0, origin);
+
+            yield return null;
+        }
+
+        lineRenderer.enabled = false;
+        isFiring = false;
+    }
+
+    private Vector3 CalculateRemoteEndPoint(Vector3 origin, float radius, Vector3 direction)
+    {
+        if (Physics.SphereCast(origin, radius, direction, out RaycastHit hit, maxDistance, hitLayers))
+        {
+            return hit.point;
+        }
+
+        return origin + direction * maxDistance;
     }
 }
