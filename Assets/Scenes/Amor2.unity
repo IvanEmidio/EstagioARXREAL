@@ -435,7 +435,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967295
   chargeLaser: {fileID: 1640230662}
-  laserRelay: {fileID: 0}
+  laserRelay: {fileID: 1640230664}
 --- !u!114 &330585552
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1323,7 +1323,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 715f97156c36e1d43842c9e3332de0f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LaserNetworkRelay
-  chargeLaser: {fileID: 0}
+  chargeLaser: {fileID: 1640230662}
 --- !u!1001 &1645717521
 PrefabInstance:
   m_ObjectHideFlags: 0
