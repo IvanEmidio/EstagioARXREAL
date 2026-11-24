@@ -49,6 +49,8 @@ public class Shooter : MonoBehaviour // Mudado de volta para MonoBehaviour para 
         if (mainCamera == null) mainCamera = Camera.main;
         if (mainCamera == null) return;
 
+
+
         // Dispara o raio a partir do centro do ecrã
         Ray ray = mainCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         Vector3 targetPoint;

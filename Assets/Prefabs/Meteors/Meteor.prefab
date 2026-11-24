@@ -150,7 +150,7 @@ Rigidbody:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 0
@@ -222,6 +222,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   maxHealth: 100
   healthBarFill: {fileID: 4755147547583031856}
+  allPlayerNeedToHit: 0
+  resetTime: 3
+  deathVfxPrefab: {fileID: 8252825715151173086, guid: 0cf8d7a7f6e5a574ea4af1c79c4121d1, type: 3}
 --- !u!136 &3941932906083188350
 CapsuleCollider:
   m_ObjectHideFlags: 0
