@@ -1132,6 +1132,8 @@ GameObject:
   - component: {fileID: 1640230661}
   - component: {fileID: 1640230660}
   - component: {fileID: 1640230662}
+  - component: {fileID: 1640230664}
+  - component: {fileID: 1640230663}
   m_Layer: 0
   m_Name: Laser
   m_TagString: Untagged
@@ -1289,6 +1291,39 @@ MonoBehaviour:
   blastWidth: 1.2
   aimColor: {r: 4, g: 0, b: 0, a: 0.5}
   blastColor: {r: 12.000002, g: 2.0000002, b: 2.0000002, a: 1}
+--- !u!114 &1640230663
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1640230659}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Fusion.Runtime.dll::Fusion.NetworkObject
+  SortKey: 1939926583
+  SendPriority: 1
+  EnableInterpolation: 1
+  Flags: 262146
+  NestedObjects: []
+  NetworkedBehaviours:
+  - {fileID: 1640230664}
+  ForceRemoteRenderTimeframe: 0
+--- !u!114 &1640230664
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1640230659}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 715f97156c36e1d43842c9e3332de0f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LaserNetworkRelay
+  chargeLaser: {fileID: 0}
 --- !u!1001 &1645717521
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1368,7 +1403,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1964602099}
   - component: {fileID: 1964602100}
-  - component: {fileID: 1964602102}
   - component: {fileID: 1964602101}
   m_Layer: 0
   m_Name: NetworkManager
@@ -1426,22 +1460,8 @@ MonoBehaviour:
   EnableInterpolation: 1
   Flags: 262146
   NestedObjects: []
-  NetworkedBehaviours:
-  - {fileID: 1964602102}
+  NetworkedBehaviours: []
   ForceRemoteRenderTimeframe: 0
---- !u!114 &1964602102
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1964602097}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 715f97156c36e1d43842c9e3332de0f6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LaserNetworkRelay
-  chargeLaser: {fileID: 1640230662}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

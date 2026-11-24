@@ -84,18 +84,18 @@ public class NetTest : SimulationBehaviour, INetworkRunnerCallbacks
 
         if (result.Ok)
         {
-            Debug.Log(
-                $"[SUCESSO] Conectado à sala! " +
-                $"Sou Master Client? {runner.IsSharedModeMasterClient}"
-            );
+            Debug.Log("[Photon] Ligação estabelecida com sucesso!");
+            Debug.Log($"[Photon] Shared Master Client: {runner.IsSharedModeMasterClient}");
+            Debug.Log($"[Photon] Player: {runner.LocalPlayer}");
 
             SetupLocalCameraTransform(runner);
         }
         else
         {
-            Debug.LogError(
-                $"[ERRO] Falha ao conectar: {result.ShutdownReason}"
-            );
+            Debug.LogError("========== PHOTON STARTGAME FALHOU ==========");
+            Debug.LogError($"Shutdown Reason: {result.ShutdownReason}");
+            Debug.LogError($"Resultado: {result}");
+            Debug.LogError("=============================================");
         }
     }
 
@@ -170,12 +170,16 @@ public class NetTest : SimulationBehaviour, INetworkRunnerCallbacks
 
     public void OnDisconnectedFromServer(
         NetworkRunner runner, NetDisconnectReason cause)
-    { }
+    {
+        Debug.LogError($"[Photon] Desligado. Causa: {cause}");
+    }
 
     public void OnConnectFailed(
         NetworkRunner runner, NetAddress remoteAddress,
         NetConnectFailedReason reason)
-    { }
+    {
+        Debug.LogError($"[Photon] Falha de ligação: {reason} | Endereço: {remoteAddress}");
+    }
 
     public void OnUserSimulationMessage(
         NetworkRunner runner, SimulationMessagePtr message)
