@@ -112,6 +112,7 @@ public class GameHealth : NetworkBehaviour
         if (IsGameOver)
         {
             TriggerGameOver();
+         
         }
         else
         {
@@ -152,12 +153,11 @@ public class GameHealth : NetworkBehaviour
 
     private void TriggerGameOver()
     {
-        Debug.LogError(
-            $"[GAME OVER] ATIVADO | Jogador: {DebugPlayer}"
-    );
-
         if (gameOverPanel != null)
             gameOverPanel.SetActive(true);
+
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
     }
 
     // =====================================================
@@ -173,6 +173,9 @@ public class GameHealth : NetworkBehaviour
             return;
 
         Debug.Log("[RESTART] Pedido de restart enviado.");
+
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
 
         RPC_RestartGame();
     }
